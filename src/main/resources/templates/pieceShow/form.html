@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('工单信息')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <div class="alert alert-danger mt-2" role="alert" th:if="${messageList}" >
+        <p th:each="message : ${messageList}" th:text="${message}"></p>
+    </div>
+    <div class="row">
+        <h2 th:text="${pieceShowForm.pieceId == null ? '添加工单' : '编辑工单'}"></h2>
+    </div>
+
+    <div class="rows">
+        <form th:action="@{/pieceShow/save}" th:object="${pieceShowForm}" method="post">
+            <input type="hidden" th:field="*{pieceId}"/>
+
+            <div class="form-group row">
+                <label for="productStyleName" class="col-sm-2 col-form-label">姓名</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="productStyleName" th:field="*{userName}" placeholder="请输入姓名" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="productId" class="col-sm-2 col-form-label">商品</label>
+                <select id="productId" class="form-control ml-3 col-sm-5" name="productId" required>
+                    <option value="">--请选择商品--</option>
+                    <!-- 动态生成选项 -->
+                    <option th:each="option : *{productList}"
+                            th:value="${option.productId}"
+                            th:text="${#strings.defaultString(option.productStyleName, '')} + ' - ' + ${#strings.defaultString(option.productName, '')}"
+                            th:selected="${option.productId == pieceShowForm.productId}">
+                        Option Name
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group row">
+                <label for="processId" class="col-sm-2 col-form-label">工序</label>
+                <select id="processId" class="form-control ml-3 col-sm-5" name="processId" required>
+                    <option value="">--请选择工序--</option>
+                    <!-- 动态生成选项 -->
+                    <option th:each="option : *{processList}"
+                            th:value="${option.processId}"
+                            th:text="${#strings.defaultString(option.processName, '')}"
+                            th:selected="${option.processId == pieceShowForm.processId}">
+                        Option Name
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group row">
+                <label for="useDate" class="col-sm-2 col-form-label">日期</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="useDate" th:field="*{useDate}" placeholder="请输入日期" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="useNum" class="col-sm-2 col-form-label">件数</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="useNum" th:field="*{useNum}" placeholder="请输入数量" required/>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a th:href="@{/pieceShow/search}" class="btn btn-secondary">返回</a>
+        </form>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    document.getElementById('useNum').addEventListener('input', function() {
+        // 只保留数字字符
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    $('#useDate').datetimepicker({
+        language: 'zh-CN', // 中文语言包
+        autoclose: true, // 选中日期后自动关闭
+        format: 'yyyy-mm-dd', // 日期格式
+        minView: "month", // 最小日期显示单元
+        todayBtn: true, // 显示今天按钮
+        todayHighlight: true, // 显示今天高亮
+        defaultDate: new Date(), // 默认显示当天日期
+        useCurrent: true
+    });
+
+    $(document).ready(function () {
+        $('#productId').change(function () {
+            var productId = $(this).val();
+            $.get('/pieceShow/findProcessSelect', {productId: productId}, function (data) {
+                var processDropdown = $('#processId');
+                processDropdown.empty();
+                processDropdown.append(new Option("请选择工序", ""));
+                data.forEach(function (item) {
+                    processDropdown.append(new Option(item.processName, item.processId));
+                });
+            });
+        });
+    });
+
+</script>
+</html>

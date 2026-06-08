@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.memo_manager.project.mapper.ProductionStatsMapper">
+
+    <select id="findDepList" resultType="com.example.memo_manager.project.dto.Department">
+        select
+            dep_id,
+            dep_name
+        from department
+        where
+            delete_flg = false
+        order by dep_id
+    </select>
+
+    <select id="findProductList" resultType="com.example.memo_manager.project.dto.Product">
+        select
+            product_id,
+            product_style_name,
+            product_name
+        from product
+        where
+            delete_flg = false
+        order by product_style_name,product_name
+    </select>
+
+    <select id="findSearch" resultType="com.example.memo_manager.project.dto.ProductionStats" parameterType="com.example.memo_manager.project.dto.ProductionStats">
+        select
+            pss.production_stats_id,
+            pss.avg_output_per_person,
+            pss.order_delivery_days,
+            pss.planned_daily_output,
+            pss.price_per_unit,
+            pss.time_per_person,
+            pss.use_date,
+            pss.people_number,
+            pss.work_time,
+            pss.dep_id,
+            pss.product_id,
+            dt.dep_name,
+            pt.product_style_name,
+            pt.product_name
+        from
+            production_stats pss
+        inner join department dt
+        on dt.dep_id = pss.dep_id
+        and dt.delete_flg = false
+        inner join product pt
+        on pt.product_id = pss.product_id
+        and pt.delete_flg = false
+        where
+            pss.delete_flg = false
+        <if test="productId != null">
+            AND pss.product_id = #{productId,jdbcType=INTEGER}
+        </if>
+        <if test="depId != null">
+            AND pss.dep_id = #{depId,jdbcType=INTEGER}
+        </if>
+        <if test="useDate!=null and useDate!=''">
+            and pss.use_date = CAST(#{useDate} AS DATE)
+        </if>
+        order by pss.dep_id, pss.use_date
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        update production_stats
+        <set>
+            delete_flg = true,
+            update_date_time = current_timestamp
+        </set>
+        where production_stats_id = #{id,jdbcType=BIGINT}
+        and delete_flg = false
+    </delete>
+
+    <select id="findProductInfo" resultType="com.example.memo_manager.project.dto.Product">
+        select
+            product_id,
+            product_style_name,
+            product_name,
+            totle_num,
+            total_price,
+            total_time
+        from product
+        where
+            delete_flg = false
+        and
+            product_id = #{productId,jdbcType=INTEGER}
+    </select>
+
+    <insert id="insert">
+        insert into production_stats
+        (
+            avg_output_per_person,
+            order_delivery_days,
+            planned_daily_output,
+            price_per_unit,
+            time_per_person,
+            use_date,
+            people_number,
+            work_time,
+            dep_id,
+            product_id,
+            create_date_time,
+            update_date_time
+        ) values
+            (
+                #{avgOutputPerPerson,jdbcType=DECIMAL},
+                #{orderDeliveryDays,jdbcType=DECIMAL},
+                #{plannedDailyOutput,jdbcType=DECIMAL},
+                #{pricePerUnit,jdbcType=DECIMAL},
+                #{timePerPerson,jdbcType=DECIMAL},
+                CAST(#{useDate} AS DATE),
+                #{peopleNumber,jdbcType=DECIMAL},
+                #{workTime,jdbcType=DECIMAL},
+                #{depId,jdbcType=INTEGER},
+                #{productId,jdbcType=INTEGER},
+                current_timestamp,
+                current_timestamp
+            )
+    </insert>
+</mapper>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('工单信息')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <div class="alert alert-danger mt-2" role="alert" th:if="${message}" th:text="${message}">
+    </div>
+    <div class="alert alert-success mt-2" role="alert" th:if="${messageSuccess}" th:text="${messageSuccess}">
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <form th:action="@{/pieceShow/search}" th:method="post" th:object="${pieceShowForm}" role="form" id="pieceShowForm">
+
+                <div class="form-group input-material">
+                    <input type="text" class="form-control col-md-11 required" id="userName" th:field="*{userName}">
+                    <label for="userName">姓名</label>
+                </div>
+
+                <div class="form-group row">
+                    <label for="depId" class="col-sm-4 col-form-label">部门</label>
+                    <select id="depId" class="form-control ml-3 col-sm-10" name="depId">
+                        <option value="">--请选择部门--</option>
+                        <!-- 动态生成选项 -->
+                        <option th:each="option : *{depList}"
+                                th:value="${option.depId}"
+                                th:text="${option.depName}"
+                                th:selected="${option.depId == pieceShowForm.depId}">
+                            Option Name
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <label for="productId" class="col-sm-4 col-form-label">商品</label>
+                    <select id="productId" class="form-control ml-3 col-sm-10" name="productId">
+                        <option value="">--请选择商品--</option>
+                        <!-- 动态生成选项 -->
+                        <option th:each="option : *{productList}"
+                                th:value="${option.productId}"
+                                th:text="${#strings.defaultString(option.productStyleName, '')} + ' - ' + ${#strings.defaultString(option.productName, '')}"
+                                th:selected="${option.productId == pieceShowForm.productId}">
+                            Option Name
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <label for="useDate" class="col-sm-8 col-form-label">日期</label>
+                    <input class="form-control ml-3  col-sm-10" type="text" id="useDate" aria-label="选择开始日" th:field="*{useDate}">
+                </div>
+
+                <div class="form-group row mx-auto">
+                    <button class="btn btn-light btn-sm btn-radius" type="submit">検索</button>
+                    <button class="reset btn btn-info btn-sm btn-radius ml-3" type="button">
+                        <span>検索条件クリア</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+        <div class="col-md-9">
+
+            <div th:if="${pageInfo != null}" >
+                <div class="row">
+                    <table class="table table-striped table-bordered table-hover table-condensed col-md-12">
+                        <legend>
+                            <strong>工单信息</strong>
+                        </legend>
+                        <thead>
+                        <tr class="bg-success text-white">
+                            <th>姓名</th>
+                            <th>商品</th>
+                            <th>工序</th>
+                            <th>日期</th>
+                            <th>件数</th>
+                            <th>编辑</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="piece : ${pageInfo.list}">
+                            <input type="hidden" th:value="${piece.pieceId}">
+                            <td th:text="${piece.userName}"></td>
+                            <td th:text="${#strings.defaultString(piece.productStyleName, '')} + ' - ' + ${#strings.defaultString(piece.productName, '')}"></td>
+                            <td th:text="${#strings.defaultString(piece.processId, '')} + ' - ' + ${#strings.defaultString(piece.processName, '')}"></td>
+                            <td th:text="${piece.useDate}"></td>
+                            <td th:text="${piece.useNum}"></td>
+                            <td>
+                                <a th:href="@{/pieceShow/edit/{id}(id=${piece.pieceId})}" class="btn btn-xs btn-info btn-radius">编辑</a>
+                                <a th:href="@{/pieceShow/delete/{id}(id=${piece.pieceId})}"
+                                   class="btn btn-xs btn-danger btn-radius"
+                                   onclick="return confirm('确定要删除吗？')">删除</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row">
+                    <a th:href="@{/pieceShow/add}" class="btn btn-primary mb-3 btn-sm btn-radius">添加工单</a>
+                </div>
+                <div class="row">
+                    <!--/*@thymesVar id="pageInfo" type="com.github.pagehelper.PageInfo"*/-->
+                    <ul th:replace="page/pageKmirari::paging(${pageInfo})"></ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    $(".reset").click(function(){
+        $(":input", "#pieceShowForm,#oneUploadForm,#allUploadForm").not(":button", ":reset", ":hidden", ":submit").not("select[disabled='disabled']").val("").removeAttr("checked").removeAttr("selected");
+        $(".custom-file-label").html("100KB");
+    })
+
+    $('#age').placeholderTypewriter({
+        text: ["Only three digits can be entered !", "999", "99", "9"]
+    });
+
+    $(document).on('change', '.custom-file-input', function (event) {
+        $(this).next('.custom-file-label').html(event.target.files[0].name);
+    });
+
+    $('#useDate').datetimepicker({
+        language: 'zh-CN', // 中文语言包
+        autoclose: true, // 选中日期后自动关闭
+        format: 'yyyy-mm-dd', // 日期格式
+        minView: "month", // 最小日期显示单元
+        todayBtn: true, // 显示今天按钮
+        todayHighlight: true, // 显示今天高亮
+        defaultDate: new Date(), // 默认显示当天日期
+        useCurrent: true
+    });
+
+    $(function() {
+        $.samaskHtml();
+
+        $('#pieceShowForm').materializeInputs(".input-material #name-field");
+    });
+
+</script>
+</html>

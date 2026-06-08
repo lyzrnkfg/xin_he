@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('合计信息')"/>
+    <meta charset="utf-8"/>
+    <style>
+        .table-wrapper {
+            max-height: calc(100vh - 120px); /* 控制表格的最大高度 */
+            overflow-y: auto; /* 让内容滚动 */
+            overflow-x: auto; /* 新增：让水平内容滚动 */
+            width: 100%; /* 确保宽度根据父元素调整 */
+        }
+        thead tr {
+            position: sticky;
+            top: 0;
+            background-color: #fff; /* 背景颜色防止内容滚动时透明 */
+            z-index: 10; /* 确保表头在上层 */
+        }
+        th, td {
+            white-space: nowrap; /* 防止单元格内文本换行 */
+            min-width: 100px; /* 根据实际情况设定最小宽度 */
+        }
+        /* 固定第一列 */
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: #fff; /* 避免背景透明 */
+            z-index: 9; /* 确保在其他内容之上，但低于表头 */
+        }
+        /* 更具体的选择器 */
+        .no-top-border {
+            border-bottom: none !important;
+            border-top: none !important;
+        }
+    </style>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container" style="max-width: 1300px;">
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <div class="alert alert-danger mt-2" role="alert" th:if="${message}" th:text="${message}">
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <form th:action="@{/piece/search}" th:method="post" th:object="${pieceForm}" role="form" id="pieceForm">
+
+                <div class="form-group input-material">
+                    <input type="text" class="form-control col-md-11 required" id="userName" th:field="*{userName}">
+                    <label for="userName">姓名</label>
+                </div>
+
+                <div class="form-group row">
+                    <label for="depId" class="col-sm-4 col-form-label">部门</label>
+                    <select id="depId" class="form-control ml-3 col-sm-10" name="depId">
+                        <option value="">--请选择部门--</option>
+                        <!-- 动态生成选项 -->
+                        <option th:each="option : *{depList}"
+                                th:value="${option.depId}"
+                                th:text="${option.depName}"
+                                th:selected="${option.depId == pieceForm.depId}">
+                            Option Name
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <label for="productId" class="col-sm-4 col-form-label">商品</label>
+                    <select id="productId" class="form-control ml-3 col-sm-10" name="productId">
+                        <option value="">--请选择商品--</option>
+                        <!-- 动态生成选项 -->
+                        <option th:each="option : *{productList}"
+                                th:value="${option.productId}"
+                                th:text="${#strings.defaultString(option.productStyleName, '')} + ' - ' + ${#strings.defaultString(option.productName, '')}"
+                                th:selected="${option.productId == pieceForm.productId}">
+                            Option Name
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group row">
+                    <label for="useDateFrom" class="col-sm-8 col-form-label">选择开始日</label>
+                    <input class="form-control ml-3  col-sm-10" type="text" id="useDateFrom" aria-label="选择开始日" th:field="*{useDateFrom}">
+                </div>
+
+                <div class="form-group row">
+                    <label for="useDateTo" class="col-sm-8 col-form-label">选择结束日</label>
+                    <input class="form-control ml-3 col-sm-10" type="text" id="useDateTo" aria-label="选择结束日" th:field="*{useDateTo}">
+                </div>
+
+                <div class="form-group row mx-auto">
+                    <button class="btn btn-light btn-sm btn-radius" type="submit">検索</button>
+                    <button class="reset btn btn-info btn-sm btn-radius ml-3" type="button">
+                        <span>検索条件クリア</span>
+                    </button>
+                </div>
+            </form>
+            <div th:if="${pieceMap != null}" >
+                <button class="btn btn-success btn-sm btn-radius" type="button" id="generate-excel">excel导出</button>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div th:if="${pieceMap != null}" >
+                <h3><strong>工单结算</strong></h3>
+                <div class="row table-wrapper">
+                    <table class="table table-bordered table-hover table-condensed col-md-12" id="test_table">
+                        <thead>
+                        <tr class="bg-success text-white">
+                            <th>姓名</th>
+                            <th>商品</th>
+                            <th>工序</th>
+                            <th>日期</th>
+                            <th>单价</th>
+                            <th>时间</th>
+                            <th>数量</th>
+                            <th>计件工资</th>
+                            <th>计件时间</th>
+                            <th>计件合计工资</th>
+                            <th>计件合计时间</th>
+                        </tr>
+                        </thead>
+                        <tbody th:each="entry : ${pieceMap}">
+                        <tr th:each="item, iterStat: ${entry.value}">
+<!--                            <td th:if="${iterStat.first}" th:text="${entry.key}" th:rowspan="${#lists.size(entry.value)}"></td>-->
+                            <td th:if="${iterStat.first}" th:text="${entry.key}" style="border-bottom: none !important;"></td>
+                            <td th:if="${!iterStat.first}" class="no-top-border"></td>
+                            <td th:text="${#strings.defaultString(item.productStyleName, '')} + ' - ' + ${#strings.defaultString(item.productName, '')}"></td>
+                            <td th:text="${#strings.defaultString(item.processId, '')} + ' - ' + ${#strings.defaultString(item.processName, '')}"></td>
+                            <td th:text="${item.useDate}"></td>
+                            <td th:text="${item.unitPrice}"></td>
+                            <td th:text="${item.costTime}"></td>
+                            <td th:text="${item.useNum}"></td>
+                            <td th:text="${item.priceProcess}"></td>
+                            <td th:text="${item.timeProcess}"></td>
+                            <td th:if="${iterStat.first}" th:text="${item.priceAllSum}" th:rowspan="${#lists.size(entry.value)}"></td>
+                            <td th:if="${iterStat.first}" th:text="${item.timeAllSum}" th:rowspan="${#lists.size(entry.value)}"></td>
+<!--                            <tr th:each="piece : ${entry.value}">-->
+<!--                                <td th:text="${piece.productName}"></td>-->
+<!--                            </tr>-->
+<!--                        <tr th:each="piece, iterStat : ${entry.value}">-->
+<!--                            <td th:if="${iterStat.first}" th:rowspan="${entry.value.size()}" th:text="${currentUserName}">User Name</td>-->
+<!--                            <td th:text="${piece.productName}"></td>-->
+<!--                        </tr>-->
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    $(".reset").click(function(){
+        $(":input", "#pieceForm,#oneUploadForm,#allUploadForm").not(":button", ":reset", ":hidden", ":submit").not("select[disabled='disabled']").val("").removeAttr("checked").removeAttr("selected");
+        $(".custom-file-label").html("100KB");
+    })
+
+    $('#age').placeholderTypewriter({
+        text: ["Only three digits can be entered !", "999", "99", "9"]
+    });
+
+    $(document).on('change', '.custom-file-input', function (event) {
+        $(this).next('.custom-file-label').html(event.target.files[0].name);
+    })
+
+    $(function() {
+
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = ('0' + (currentDate.getMonth() + 1)).slice(-2); // JavaScript的月份是从0开始的
+        var day = ('0' + currentDate.getDate()).slice(-2);
+        var hours = ('0' + currentDate.getHours()).slice(-2);
+        var minutes = ('0' + currentDate.getMinutes()).slice(-2);
+
+// 格式化为 YYYYMMDD_HHMM
+        var formattedDate = year + month + day + "_" + hours + minutes;
+
+// 动态生成文件名
+        var fileName = "工单结算_" + formattedDate + ".xlsx";
+
+        excel = new ExcelGen({
+            "src_id": "test_table",
+            "show_header": true,
+            "file_name": "output.xlsx"
+        });
+        $("#generate-excel").click(function () {
+            excel.generate();
+        });
+
+        $.samaskHtml();
+
+        $('#pieceForm').materializeInputs(".input-material #name-field");
+
+        $('#datetimepicker').datetimepicker({
+            language: 'zh-CN', // 中文语言包
+            autoclose: true, // 选中日期后自动关闭
+            format: 'yyyy-mm-dd', // 日期格式
+            minView: "month", // 最小日期显示单元
+            todayBtn: true, // 显示今天按钮
+            todayHighlight: true, // 显示今天高亮
+            defaultDate: new Date(), // 默认显示当天日期
+            useCurrent: true
+        });
+
+        $('#useDateFrom').datetimepicker({
+            language: 'zh-CN', // 中文语言包
+            autoclose: true, // 选中日期后自动关闭
+            format: 'yyyy-mm-dd', // 日期格式
+            minView: "month", // 最小日期显示单元
+            todayBtn: true, // 显示今天按钮
+            todayHighlight: true, // 显示今天高亮
+            defaultDate: new Date(), // 默认显示当天日期
+            useCurrent: true,
+            showClear: true
+        });
+
+        $('#useDateTo').datetimepicker({
+            language: 'zh-CN', // 中文语言包
+            autoclose: true, // 选中日期后自动关闭
+            format: 'yyyy-mm-dd', // 日期格式
+            minView: "month", // 最小日期显示单元
+            todayBtn: true, // 显示今天按钮
+            todayHighlight: true, // 显示今天高亮
+            defaultDate: new Date(), // 默认显示当天日期
+            useCurrent: true,
+            showClear: true
+        });
+
+    });
+
+</script>
+</html>

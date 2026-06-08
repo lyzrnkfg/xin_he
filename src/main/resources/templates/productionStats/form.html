@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('人均信息')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <div class="alert alert-danger mt-2" role="alert" th:if="${message}" th:text="${message}">
+    </div>
+    <div class="alert alert-danger mt-2" role="alert" th:if="${messageList}" >
+        <p th:each="message : ${messageList}" th:text="${message}"></p>
+    </div>
+    <div class="row">
+        <h2 th:text="添加信息"></h2>
+    </div>
+
+    <div class="rows">
+        <form th:action="@{/productionStats/save}" th:object="${productionStats}" method="post">
+
+            <div class="form-group row">
+                <label for="depId" class="col-sm-2 col-form-label">部门</label>
+                <select id="depId" class="form-control ml-3 col-sm-5" name="depId" required>
+                    <option value="">--请选择部门--</option>
+                    <!-- 动态生成选项 -->
+                    <option th:each="option : *{depList}"
+                            th:value="${option.depId}"
+                            th:text="${option.depName}"
+                            th:selected="${option.depId == productionStats.depId}">
+                        Option Name
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group row">
+                <label for="productId" class="col-sm-2 col-form-label">商品</label>
+                <select id="productId" class="form-control ml-3 col-sm-5" name="productId" required>
+                    <option value="">--请选择商品--</option>
+                    <!-- 动态生成选项 -->
+                    <option th:each="option : *{productList}"
+                            th:value="${option.productId}"
+                            th:text="${#strings.defaultString(option.productStyleName, '')} + ' - ' + ${#strings.defaultString(option.productName, '')}"
+                            th:selected="${option.productId == productionStats.productId}">
+                        Option Name
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group row">
+                <label for="useDate" class="col-sm-2 col-form-label">日期</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="useDate" th:field="*{useDate}" placeholder="请输入日期" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="peopleNumber" class="col-sm-2 col-form-label">工作人数</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="peopleNumber" th:field="*{peopleNumber}" placeholder="请输入人数，只能是整数不包含小数" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="workTime" class="col-sm-2 col-form-label">工作时间</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="workTime" th:field="*{workTime}" placeholder="只能输入最多2位小数的数字" required oninput="limitDecimalPlaces(this, 2)"/>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a th:href="@{/productionStats/search}" class="btn btn-secondary">返回</a>
+        </form>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    $('#useDate').datetimepicker({
+        language: 'zh-CN', // 中文语言包
+        autoclose: true, // 选中日期后自动关闭
+        format: 'yyyy-mm-dd', // 日期格式
+        minView: "month", // 最小日期显示单元
+        todayBtn: true, // 显示今天按钮
+        todayHighlight: true, // 显示今天高亮
+        defaultDate: new Date(), // 默认显示当天日期
+        useCurrent: true
+    });
+
+    document.getElementById('peopleNumber').addEventListener('input', function() {
+        // 只保留数字字符
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    function limitDecimalPlaces(input, decimalPlaces) {
+        // 获取当前输入框的值
+        let value = input.value;
+
+        // 使用正则表达式匹配整数部分和最多有decimalPlaces位小数的数字
+        const regex = new RegExp(`^\\d*(\\.\\d{0,${decimalPlaces}})?$`);
+
+        if (!regex.test(value)) {
+            // 如果输入不符合要求，则移除非数字字符以及超出指定小数位的部分
+            value = value.replace(/[^\d.]/g, ''); // 移除非数字和小数点字符
+            const parts = value.split('.');
+            if (parts.length > 1 && parts[1].length > decimalPlaces) {
+                parts[1] = parts[1].substring(0, decimalPlaces);
+            }
+            value = parts.join('.');
+        }
+
+        // 更新输入框的值
+        input.value = value;
+    }
+
+</script>
+</html>

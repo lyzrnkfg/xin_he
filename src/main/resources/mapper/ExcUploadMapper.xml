@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.memo_manager.project.mapper.ExcUploadMapper">
+
+    <select id="findUserList" resultType="com.example.memo_manager.project.dto.Student">
+        select
+            user_id,
+            user_name
+        from student
+        where delete_flg = false
+    </select>
+
+    <select id="findProductList" resultType="com.example.memo_manager.project.dto.Product">
+        select
+            product_id,
+            product_style_name,
+            product_name
+        from product
+        where delete_flg = false
+    </select>
+
+    <select id="findProcessList" resultType="com.example.memo_manager.project.dto.Process">
+        select
+            process_id,
+            product_id,
+            process_name
+        from process
+        where delete_flg = false
+    </select>
+
+    <select id="findPieceList" resultType="com.example.memo_manager.project.dto.PieceInsert">
+        select
+            process_id,
+            product_id,
+            user_id,
+            use_date
+        from piece_rate_pay_total
+        where delete_flg = false
+    </select>
+
+    <update id="updatePiece" parameterType="com.example.memo_manager.project.dto.PieceInsert">
+        update piece_rate_pay_total
+        <set>
+            use_num = #{useNum,jdbcType=INTEGER},
+            update_date_time = current_timestamp
+        </set>
+        where user_id = #{userId,jdbcType=INTEGER}
+        and product_id = #{productId,jdbcType=INTEGER}
+        and process_id = #{processId,jdbcType=INTEGER}
+        and use_date = CAST(#{useDate} AS DATE)
+        and delete_flg = false
+    </update>
+
+    <insert id="insertPieceList">
+        insert into piece_rate_pay_total
+        (
+            user_id,
+            product_id,
+            process_id,
+            use_num,
+            use_date,
+            create_date_time,
+            update_date_time
+        ) values
+            <foreach collection="pieceInsertList" item="dto" index="index" separator=",">
+                (
+                #{dto.userId},
+                #{dto.productId},
+                #{dto.processId},
+                #{dto.useNum},
+                CAST(#{dto.useDate} AS DATE),
+                current_timestamp,
+                current_timestamp
+                )
+            </foreach>
+
+    </insert>
+</mapper>

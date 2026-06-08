@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('商品信息')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <div class="alert alert-danger mt-2" role="alert" th:if="${message}" th:text="${message}">
+    </div>
+    <div class="alert alert-success mt-2" role="alert" th:if="${messageSuccess}" th:text="${messageSuccess}">
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <form th:action="@{/product/search}" th:method="post" th:object="${productForm}" role="form" id="productForm">
+                <div class="form-group input-material">
+                    <input type="text" class="form-control col-md-8 required" id="productStyleName" th:field="*{productStyleName}">
+                    <label for="productStyleName">款号</label>
+                </div>
+                <div class="form-group input-material">
+                    <input type="text" class="form-control col-md-8 required" id="productName" th:field="*{productName}">
+                    <label for="productName">品名</label>
+                </div>
+                <!--<div class="form-group row mt-3">
+                    <div class="col-md-2 title_column">
+                        <label class="control-label">YN</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" th:field="*{name}" class="form-control">
+                    </div>
+                </div>-->
+                <!--        <div class="form-group row mt-3">-->
+                <!--            <div class="col-md-2">-->
+                <!--                <label class="control-label">AG</label>-->
+                <!--            </div>-->
+                <!--            <div class="col-md-4">-->
+                <!--                <input type="text" th:field="*{age}" class="form-control" data-samask="000">-->
+                <!--            </div>-->
+                <!--        </div>-->
+                <div class="form-group row mx-auto">
+                    <button class="btn btn-light btn-sm btn-radius" type="submit">検索</button>
+                    <button class="reset btn btn-info btn-sm btn-radius ml-3" type="button">
+                        <span>検索条件クリア</span>
+                    </button>
+                </div>
+            </form>
+
+
+        </div>
+        <div class="col-md-8">
+
+            <div th:if="${pageInfo != null}" >
+                <!--<ul class="pagination">
+                    &lt;!&ndash; 首页 &ndash;&gt;
+                    <li th:class="|page-item ${pageInfo.isFirstPage ? 'disabled' : ''}|">
+                        <a class="page-link" th:href="@{''(page=0)}">
+                            <span>首页</span>
+                        </a>
+                    </li>
+                    &lt;!&ndash; 上一页 &ndash;&gt;
+                    <li th:class="|page-item ${pageInfo.isFirstPage ? 'disabled' : ''}|">
+                        <a class="page-link" aria-label="Previous" th:href="@{''(page=${pageInfo.prePage})}">
+                            <span>上一页</span>
+                        </a>
+                    </li>
+                    &lt;!&ndash; 如果前面页码没有显示完则显示省略号 &ndash;&gt;
+                    <li th:if="${pageInfo.navigateFirstPage > 1}"><span class="page-link disabled">&hellip;</span></li>
+                    &lt;!&ndash; 显示导航页码 &ndash;&gt;
+                    <th:block th:each="i: ${pageInfo.navigatepageNums}">
+                        <li th:class="|page-item ${(pageInfo.pageNum == i) ? 'active' : ''}|">
+                            <a class="page-link" th:href="@{''(page=${i})}" th:text="${i}"></a></li>
+                    </th:block>
+                    &lt;!&ndash; 如果后面页码没有显示完则显示省略号 &ndash;&gt;
+                    <li th:if="${pageInfo.navigateLastPage < pageInfo.pages}"><span class="page-link disabled">&hellip;</span></li>
+                    &lt;!&ndash; 下一页 &ndash;&gt;
+                    <li th:class="|page-item ${pageInfo.isLastPage ? 'disabled' : ''}|">
+                        <a class="page-link" th:href="@{''(page=${pageInfo.nextPage})}">
+                            <span>下一页</span>
+                        </a>
+                    </li>
+                    &lt;!&ndash; 末页 &ndash;&gt;
+                    <li th:class="|page-item ${pageInfo.isLastPage ? 'disabled' : ''}|">
+                        <a class="page-link" th:href="@{''(page=${pageInfo.pages})}">
+                            <span>末页</span>
+                        </a>
+                    </li>
+                </ul>-->
+                <div class="row">
+                    <table class="table table-striped table-bordered table-hover table-condensed col-md-10">
+                        <legend>
+                            <strong>商品信息</strong>
+                        </legend>
+                        <thead>
+                        <tr class="bg-success text-white">
+                            <th>款号</th>
+                            <th>品名</th>
+                            <th>总件数</th>
+                            <th>总价格</th>
+                            <th>总时间</th>
+                            <th>编辑</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${pageInfo.list}">
+                            <input type="hidden" th:value="${product.productId}">
+                            <td th:text="${product.productStyleName}"></td>
+                            <td th:text="${product.productName}"></td>
+                            <td th:text="${product.totleNum}"></td>
+                            <td th:text="${product.totalPrice}"></td>
+                            <td th:text="${product.totalTime}"></td>
+                            <td>
+                                <a th:href="@{/product/edit/{id}(id=${product.productId})}" class="btn btn-xs btn-info btn-radius">编辑</a>
+                                <a th:href="@{/product/delete/{id}(id=${product.productId})}"
+                                   class="btn btn-xs btn-danger btn-radius"
+                                   onclick="return confirm('确定要删除吗？')">删除</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row">
+                    <a th:href="@{/product/add}" class="btn btn-primary mb-3 btn-sm btn-radius">添加商品</a>
+                </div>
+                <div class="row">
+                    <!--/*@thymesVar id="pageInfo" type="com.github.pagehelper.PageInfo"*/-->
+                    <ul th:replace="page/pageKmirari::paging(${pageInfo})"></ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    $(".reset").click(function(){
+        $(":input", "#productForm,#oneUploadForm,#allUploadForm").not(":button", ":reset", ":hidden", ":submit").not("select[disabled='disabled']").val("").removeAttr("checked").removeAttr("selected");
+        $(".custom-file-label").html("100KB");
+    })
+
+    $('#age').placeholderTypewriter({
+        text: ["Only three digits can be entered !", "999", "99", "9"]
+    });
+
+    $(document).on('change', '.custom-file-input', function (event) {
+        $(this).next('.custom-file-label').html(event.target.files[0].name);
+    })
+
+    $(function() {
+        $.samaskHtml();
+
+        $('#productForm').materializeInputs(".input-material #name-field");
+    });
+
+</script>
+</html>

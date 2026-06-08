@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.memo_manager.project.mapper.ProcessMapper">
+
+    <select id="findProcessById" resultType="com.example.memo_manager.project.dto.Process" parameterType="java.lang.Integer">
+        select
+        process_key_id,
+         process_id,
+         product_id,
+         process_name,
+         unit_price,
+         cost_time,
+        process_id as processOldId,
+        product_id as productOldId
+        from process
+        where process_key_id = #{id, jdbcType=INTEGER}
+        and delete_flg = false
+    </select>
+
+    <select id="searchProcessList" resultType="com.example.memo_manager.project.dto.Process" parameterType="com.example.memo_manager.project.dto.Process">
+        select
+        pss.process_key_id,
+        pss.process_id,
+        pss.product_id,
+        pss.process_name,
+        pss.unit_price,
+        pss.cost_time,
+        pro.product_style_name,
+        pro.product_name
+        from process pss
+        left join product pro
+        on pro.product_id = pss.product_id
+        and pro.delete_flg =false
+        where
+         pss.delete_flg = false
+            <if test="productId!=null">
+                and pss.product_id = #{productId,jdbcType=BIGINT}
+            </if>
+        <if test="processId!=null">
+            and pss.process_id = #{processId,jdbcType=BIGINT}
+        </if>
+        <if test="processName!=null and processName!=''">
+            and pss.process_name like CONCAT('%',#{processName, jdbcType=VARCHAR},'%')
+        </if>
+         order by pro.product_style_name,pro.product_name,pss.process_id
+    </select>
+
+    <update id="update" parameterType="com.example.memo_manager.project.dto.Process" >
+        update process
+        <set>
+            <if test="processName != null and processName!=''" >
+                process_name = #{processName,jdbcType=VARCHAR},
+            </if>
+            <if test="processId != null" >
+                process_id = #{processId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null" >
+                product_id = #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="unitPrice != null" >
+                unit_price = #{unitPrice,jdbcType=DOUBLE},
+            </if>
+            <if test="costTime != null" >
+                cost_time = #{costTime,jdbcType=DOUBLE},
+            </if>
+            update_date_time = current_timestamp
+        </set>
+        where process_key_id = #{processKeyId, jdbcType=BIGINT}
+        and delete_flg = false
+    </update>
+
+    <select id="findProductList" resultType="com.example.memo_manager.project.dto.Product">
+        select
+            product_id,
+            product_style_name,
+            product_name
+        from product
+        where
+            delete_flg = false
+        order by product_style_name,product_name
+    </select>
+
+    <select id="findProcessCount" resultType="int">
+        SELECT COUNT(*)
+        FROM process
+        WHERE
+        delete_flg = false
+        <if test="productId != null">
+            AND product_id = #{productId,jdbcType=INTEGER}
+        </if>
+        <if test="processId != null">
+            AND process_id = #{processId,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <update id="delete" parameterType="java.lang.Integer" >
+        update process
+        <set>
+            delete_flg = true,
+            update_date_time = current_timestamp
+        </set>
+        where process_key_id = #{id,jdbcType=INTEGER}
+        and delete_flg = false
+    </update>
+
+    <insert id="insert" parameterType="com.example.memo_manager.project.dto.Process" >
+        insert into process
+        (
+            process_id,
+            product_id,
+            process_name,
+            unit_price,
+            cost_time,
+            create_date_time,
+            update_date_time
+        ) values
+        (
+            #{processId,jdbcType=INTEGER},
+            #{productId,jdbcType=INTEGER},
+            #{processName,jdbcType=VARCHAR},
+            #{unitPrice,jdbcType=DOUBLE},
+            #{costTime,jdbcType=DOUBLE},
+            current_timestamp,
+            current_timestamp
+        )
+    </insert>
+
+</mapper>

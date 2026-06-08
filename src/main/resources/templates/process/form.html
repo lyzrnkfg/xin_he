@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('员工信息')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <div class="alert alert-danger mt-2" role="alert" th:if="${message}" th:text="${message}">
+    </div>
+    <div class="row">
+        <h2 th:text="${process.processId == null ? '添加工序' : '编辑工序'}"></h2>
+    </div>
+
+    <div class="rows">
+        <form th:action="@{/process/save}" th:object="${process}" method="post">
+            <input type="hidden" th:field="*{processKeyId}"/>
+            <input type="hidden" th:field="*{processOldId}"/>
+            <input type="hidden" th:field="*{productOldId}"/>
+
+            <div class="form-group row">
+                <label for="productId" class="col-sm-2 col-form-label">商品</label>
+                <select id="productId" class="form-control ml-3 col-sm-5" name="productId" required>
+                    <option value="">--请选择商品--</option>
+                    <!-- 动态生成选项 -->
+                    <option th:each="option : *{productList}"
+                            th:value="${option.productId}"
+                            th:text="${#strings.defaultString(option.productStyleName, '')} + ' - ' + ${#strings.defaultString(option.productName, '')}"
+                            th:selected="${option.productId == process.productId}">
+                        Option Name
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group row">
+                <label for="processId" class="col-sm-2 col-form-label">工序号</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="processId" th:field="*{processId}" placeholder="请输入工序号" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="processName" class="col-sm-2 col-form-label">工序名</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="processName" th:field="*{processName}" placeholder="请输入工序名" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="unitPrice" class="col-sm-2 col-form-label">单价</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="unitPrice" th:field="*{unitPrice}" placeholder="只能输入最多2位小数的数字" required oninput="limitDecimalPlaces(this, 2)"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="costTime" class="col-sm-2 col-form-label">时间</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="costTime" th:field="*{costTime}" placeholder="只能输入最多2位小数的数字" required oninput="limitDecimalPlaces(this, 2)"/>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a th:href="@{/process/search}" class="btn btn-secondary">返回</a>
+        </form>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    function limitDecimalPlaces(input, decimalPlaces) {
+        // 获取当前输入框的值
+        let value = input.value;
+
+        // 使用正则表达式匹配整数部分和最多有decimalPlaces位小数的数字
+        const regex = new RegExp(`^\\d*(\\.\\d{0,${decimalPlaces}})?$`);
+
+        if (!regex.test(value)) {
+            // 如果输入不符合要求，则移除非数字字符以及超出指定小数位的部分
+            value = value.replace(/[^\d.]/g, ''); // 移除非数字和小数点字符
+            const parts = value.split('.');
+            if (parts.length > 1 && parts[1].length > decimalPlaces) {
+                parts[1] = parts[1].substring(0, decimalPlaces);
+            }
+            value = parts.join('.');
+        }
+
+        // 更新输入框的值
+        input.value = value;
+    }
+
+</script>
+</html>

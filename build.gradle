@@ -1,0 +1,61 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+}
+
+group = 'com.memo'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+jar {
+    archiveFileName = 'memo.jar'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+    implementation 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'com.github.pagehelper:pagehelper-spring-boot-starter:1.4.7'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.commons:commons-pool2:2.11.1'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation('com.opencsv:opencsv:5.5.1') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.3'
+    implementation 'com.jcraft:jsch:0.1.55'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.0'
+    implementation ('org.mockito:mockito-inline:5.2.0'){
+        exclude group: 'net.bytebuddy', module: 'byte-buddy'
+    }
+    implementation 'net.bytebuddy:byte-buddy:1.14.17'
+    implementation 'com.atilika.kuromoji:kuromoji-ipadic:0.9.0'
+    implementation 'com.ibm.icu:icu4j:73.2'
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.dbunit:dbunit:2.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}

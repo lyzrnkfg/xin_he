@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.memo_manager.project.mapper.PieceMapper">
+
+    <select id="findDepList" resultType="com.example.memo_manager.project.dto.Department">
+        select
+            dep_id,
+            dep_name
+        from department
+        where
+            delete_flg = false
+        order by dep_id
+    </select>
+
+
+    <select id="findProductList" resultType="com.example.memo_manager.project.dto.Product">
+        select
+            product_id,
+            product_style_name,
+            product_name
+        from product
+        where
+            delete_flg = false
+        order by product_style_name,product_name
+    </select>
+
+    <select id="searchPieceList" resultType="com.example.memo_manager.project.dto.Piece" parameterType="com.example.memo_manager.project.dto.PieceRequest">
+        select
+            st.user_id,
+            st.user_name,
+            pro.process_id,
+            pro.process_name,
+            pro.unit_price,
+            pro.cost_time,
+            pd.product_id,
+            pd.product_style_name,
+            pd.product_name,
+            prpt.use_date,
+            prpt.use_num,
+            dt.dep_name,
+            dt.dep_id
+        from piece_rate_pay_total prpt
+        inner join student st
+        on prpt.user_id = st.user_id
+        and st.delete_flg =false
+        inner join product pd
+        on pd.product_id = prpt.product_id
+        and pd.delete_flg =false
+        inner join process pro
+        on pro.product_id = prpt.product_id
+        and pro.process_id = prpt.process_id
+        and pro.delete_flg = false
+        left join department dt
+        on dt.dep_id = st.dep_id
+        and dt.delete_flg = false
+        where
+            prpt.delete_flg = false
+        <if test="userName!=null and userName!=''">
+            and st.user_name like CONCAT('%',#{userName, jdbcType=VARCHAR},'%')
+        </if>
+        <if test="useDateFrom!=null and useDateFrom!=''">
+            and prpt.use_date <![CDATA[>=]]> CAST(#{useDateFrom} AS DATE)
+        </if>
+        <if test="useDateTo!=null and useDateTo!=''">
+            and prpt.use_date <![CDATA[<=]]> CAST(#{useDateTo} AS DATE)
+        </if>
+        <if test="depId != null" >
+            and dt.dep_id = #{depId,jdbcType=BIGINT}
+        </if>
+        <if test="productId != null" >
+            and pd.product_id = #{productId,jdbcType=BIGINT}
+        </if>
+        order by st.user_id,prpt.use_date,pd.product_id,pro.process_id
+    </select>
+
+    <select id="findPieceSearch" resultType="com.example.memo_manager.project.dto.Piece" parameterType="com.example.memo_manager.project.dto.PieceShow">
+        select
+            prpt.piece_id,
+            st.user_id,
+            st.user_name,
+            pro.process_id,
+            pro.process_name,
+            pro.unit_price,
+            pro.cost_time,
+            pt.product_id,
+            pt.product_style_name,
+            pt.product_name,
+            prpt.use_date,
+            prpt.use_num,
+            dt.dep_name,
+            dt.dep_id
+        from piece_rate_pay_total prpt
+        inner join student st
+        on st.user_id = prpt.user_id
+        and st.delete_flg = false
+        inner join product pt
+        on pt.product_id = prpt.product_id
+        and pt.delete_flg = false
+        inner join process pro
+        on pro.product_id = prpt.product_id
+        and pro.process_id = prpt.process_id
+        and pro.delete_flg = false
+        inner join department dt
+        on dt.dep_id = st.dep_id
+        and dt.delete_flg = false
+        where
+            prpt.delete_flg = false
+        <if test="depId != null" >
+            and dt.dep_id = #{depId,jdbcType=BIGINT}
+        </if>
+        <if test="productId != null" >
+            and pt.product_id = #{productId,jdbcType=BIGINT}
+        </if>
+        <if test="useDate!=null and useDate!=''">
+            and prpt.use_date = CAST(#{useDate} AS DATE)
+        </if>
+        <if test="userName!=null and userName!=''">
+            and st.user_name like CONCAT('%',#{userName, jdbcType=VARCHAR},'%')
+        </if>
+        order by st.user_id,prpt.use_date,pt.product_id,pro.process_id
+    </select>
+
+    <select id="findPieceById" resultType="com.example.memo_manager.project.dto.PieceShow"  parameterType="java.lang.Integer">
+        select
+            prpt.piece_id,
+            prpt.user_id,
+            prpt.product_id,
+            prpt.process_id,
+            prpt.use_date,
+            prpt.use_num,
+            st.user_name
+        from
+            piece_rate_pay_total prpt
+        inner join student st
+        on st.user_id = prpt.user_id
+        and st.delete_flg = false
+        where
+            prpt.delete_flg = false
+        and
+            prpt.piece_id = #{id, jdbcType=BIGINT}
+    </select>
+
+    <insert id="insert" parameterType="com.example.memo_manager.project.dto.PieceShow">
+        insert into piece_rate_pay_total
+        (
+            user_id,
+            product_id,
+            process_id,
+            use_date,
+            use_num,
+            create_date_time,
+            update_date_time
+        ) values
+            (
+                #{userId,jdbcType=INTEGER},
+                #{productId,jdbcType=INTEGER},
+                #{processId,jdbcType=INTEGER},
+                CAST(#{useDate} AS DATE),
+                #{useNum,jdbcType=INTEGER},
+                current_timestamp,
+                current_timestamp
+            )
+    </insert>
+
+    <update id="update" parameterType="com.example.memo_manager.project.dto.PieceShow">
+        update piece_rate_pay_total
+        <set>
+            <if test="userId != null" >
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="productId != null" >
+                product_id = #{productId,jdbcType=INTEGER},
+            </if>
+            <if test="processId != null" >
+                process_id = #{processId,jdbcType=INTEGER},
+            </if>
+            <if test="useNum != null" >
+                use_num = #{useNum,jdbcType=INTEGER},
+            </if>
+            <if test="useDate != null and useDate!=''" >
+                use_date = CAST(#{useDate} AS DATE),
+            </if>
+            update_date_time = current_timestamp
+        </set>
+        where piece_id = #{pieceId,jdbcType=INTEGER}
+        and delete_flg = false
+    </update>
+
+    <update id="delete" parameterType="java.lang.Integer" >
+        update piece_rate_pay_total
+        <set>
+            delete_flg = true,
+            update_date_time = current_timestamp
+        </set>
+        where piece_id = #{id,jdbcType=BIGINT}
+        and delete_flg = false
+    </update>
+
+    <select id="findProcessList" resultType="com.example.memo_manager.project.dto.Process">
+        select
+            process_id,
+            process_name
+        from process
+        where
+            delete_flg = false
+        and product_id = #{productId,jdbcType=INTEGER}
+    </select>
+
+    <select id="findUserId" resultType="java.lang.Integer">
+        select
+            user_id
+        from
+            student
+        where
+            delete_flg = false
+        and
+            user_name = #{userName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="findPieceCount" resultType="java.lang.Integer">
+        select
+        count(*)
+        from piece_rate_pay_total
+        where
+        delete_flg = false
+        and user_id = #{userId,jdbcType=INTEGER}
+        and product_id = #{productId,jdbcType=BIGINT}
+        and process_id = #{processId,jdbcType=INTEGER}
+        <if test="pieceId != null" >
+            and piece_id != #{pieceId,jdbcType=INTEGER}
+        </if>
+        and use_date = CAST(#{useDate} AS DATE)
+    </select>
+</mapper>

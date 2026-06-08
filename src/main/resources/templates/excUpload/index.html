@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('上传数据')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <div class="alert alert-danger mt-2" role="alert" th:if="${messageList}" >
+        <p th:each="message : ${messageList}" th:text="${message}"></p>
+    </div>
+    <div class="alert alert-success mt-2" role="alert" th:if="${messageSuccessList}" >
+        <p th:each="message : ${messageSuccessList}" th:text="${message}"></p>
+    </div>
+    <div class="row mt-3">
+        <form method="post" th:action="@{/excUpload/read}" enctype="multipart/form-data" id="oneUploadForm">
+            <h3>
+                工单信息
+                <small class="text-muted">导入每个人每天作业信息（*输入信息时不要输入多余的空格和非业务字符*）</small>
+            </h3>
+            <div class="custom-file col-md-4 mx-auto">
+                <input type="file" name="file" class="custom-file-input" id="customFile">
+                <label class="custom-file-label" for="customFile">选择文件</label>
+            </div>
+            <div class="my-3 row mx-auto">
+                <button class="btn btn-success btn-sm btn-radius" type="submit">导入信息</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    $(".reset").click(function(){
+        $(":input", "#studentForm,#oneUploadForm,#allUploadForm").not(":button", ":reset", ":hidden", ":submit").not("select[disabled='disabled']").val("").removeAttr("checked").removeAttr("selected");
+        $(".custom-file-label").html("100KB");
+    })
+
+    $('#age').placeholderTypewriter({
+        text: ["Only three digits can be entered !", "999", "99", "9"]
+    });
+
+    $(document).on('change', '.custom-file-input', function (event) {
+        $(this).next('.custom-file-label').html(event.target.files[0].name);
+    })
+
+    $(function() {
+        $.samaskHtml();
+
+        $('#studentForm').materializeInputs(".input-material #name-field");
+    });
+</script>
+</html>

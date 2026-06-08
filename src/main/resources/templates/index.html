@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('首页')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container mt-3">
+    <!-- Jumbotron -->
+    <div class="jumbotron text-center">
+        <h1 class="display-4">欢迎来到我们的网站！</h1>
+        <p class="lead">这是一个使用Bootstrap 4.6.1构建的简单首页。</p>
+        <hr class="my-4">
+        <p>我们提供高质量的服务和支持。</p>
+    </div>
+
+    <!-- 特色介绍 -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">特色一</h5>
+                    <p class="card-text">描述第一个特色或服务。</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">9 mins</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">特色二</h5>
+                    <p class="card-text">描述第二个特色或服务。</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">9 mins</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">特色三</h5>
+                    <p class="card-text">描述第三个特色或服务。</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">9 mins</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 脚注 -->
+    <footer class="text-right mt-5">
+        <p>&copy; 2025 我的公司, Inc. &middot; <a href="#">隐私政策</a> &middot; <a href="#">条款与条件</a></p>
+    </footer>
+
+</div>
+
+<script th:inline="javascript">
+
+</script>
+</html>

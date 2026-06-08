@@ -1,0 +1,54 @@
+## Server Settings.
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+## Spring Settings.
+spring:
+  cache:
+    caffeine:
+      spec: initialCapacity=50,maximumSize=500,expireAfterWrite=60s
+    type: caffeine
+    cache-names:
+      - division
+      - message
+  profiles:
+    active: acp
+  servlet:
+    ## Murlipart Settings.
+    multipart:
+      enabled: true
+      max-file-size: 200MB
+      max-request-size: 200MB
+  datasource:
+    ## Hikari Settings.
+    hikari:
+      connection-timeout: 60000
+      minimum-idle: 30
+      maximum-pool-size: 60
+      idle-timeout: 20000
+      max-lifetime: 60000
+      connection-test-query: select version()
+  transaction:
+    default-timeout: 2900
+  thymeleaf:
+    cache: false
+## Mybatis Settings.
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    map-underscore-to-camel-case: true
+  type-handlers-package: com.example.demo.project.mapper
+  mapper-locations: classpath:mapper/*.xml
+pagehelper:
+  helperDialect: postgresql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+logging:
+  level:
+    com.example.memo_manager.project.mapper: DEBUG
+  file:
+    name: D:/java/logs/all-logs.log

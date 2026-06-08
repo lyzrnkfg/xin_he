@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('员工信息')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <div class="alert alert-danger mt-2" role="alert" th:if="${message}" th:text="${message}">
+    </div>
+    <div class="row">
+        <h2 th:text="${student.userId == null ? '添加员工' : '编辑员工'}"></h2>
+    </div>
+<!--    <div class="row">-->
+<!--        <form th:action="@{/student/save}" th:object="${student}" method="post">-->
+<!--            <input type="hidden" th:field="*{userId}"/>-->
+
+<!--&lt;!&ndash;            <div class="form-group row">&ndash;&gt;-->
+<!--&lt;!&ndash;                <label for="userName" class="col-sm-2 col-form-label">姓名</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="col-sm-5">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <input type="text" class="form-control" id="userName" th:field="*{userName}" placeholder="请输入员工姓名" required/>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <div class="form-group">&ndash;&gt;-->
+<!--&lt;!&ndash;                <label for="userName" class="col-sm-2 control-label">姓名</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="col-sm-10">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <input type="text" class="form-control" id="userName" th:field="*{userName}" placeholder="请输入员工姓名" required/>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            <div class="form-group">&ndash;&gt;-->
+<!--&lt;!&ndash;                <label>姓名</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                <input type="text" class="form-control" th:field="*{userName}" required/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+<!--            <button type="submit" class="btn btn-primary">保存</button>-->
+<!--            <a th:href="@{/student/search}" class="btn btn-secondary">返回</a>-->
+<!--        </form>-->
+<!--    </div>-->
+
+    <div class="rows">
+        <form th:action="@{/student/save}" th:object="${student}" method="post">
+            <input type="hidden" th:field="*{userId}"/>
+
+            <div class="form-group row">
+                <label for="userName" class="col-sm-2 col-form-label">姓名</label>
+                <div class="col-sm-5">
+                    <input type="text" th:attr="readonly=${student.userId != null ? 'readonly' : null}"  class="form-control" id="userName" th:field="*{userName}" placeholder="请输入员工姓名" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="depId" class="col-sm-2 col-form-label">部门</label>
+                <select id="depId" class="form-control ml-3 col-sm-5" name="depId" required>
+                    <option value="">--请选择部门--</option>
+                    <!-- 动态生成选项 -->
+                    <option th:each="option : *{depList}"
+                            th:value="${option.depId}"
+                            th:text="${option.depName}"
+                            th:selected="${option.depId == student.depId}">
+                        Option Name
+                    </option>
+                </select>
+            </div>
+
+<!--            <div class="form-group row">-->
+<!--                <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>-->
+<!--                <div class="col-sm-10">-->
+<!--                    <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="form-group row">-->
+<!--                <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>-->
+<!--                <div class="col-sm-10">-->
+<!--                    <input type="password" class="form-control" id="inputPassword">-->
+<!--                </div>-->
+<!--            </div>-->
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a th:href="@{/student/search}" class="btn btn-secondary">返回</a>
+        </form>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+
+
+</script>
+</html>

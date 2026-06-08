@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.memo_manager.project.mapper.ProductMapper">
+
+    <select id="findProductById" resultType="com.example.memo_manager.project.dto.Product" parameterType="java.lang.Integer">
+        select
+         product_id,
+         product_style_name,
+         product_name,
+         totle_num,
+         total_price,
+         total_time
+        from product
+        where product_id = #{id, jdbcType=BIGINT}
+        and delete_flg = false
+    </select>
+
+    <select id="searchProductList" resultType="com.example.memo_manager.project.dto.Product" parameterType="com.example.memo_manager.project.dto.Product">
+        select
+        product_id,
+        product_style_name,
+        product_name,
+        totle_num,
+        total_price,
+        total_time
+        from product
+        where
+         delete_flg = false
+            <if test="productStyleName!=null and productStyleName!=''">
+                and product_style_name like CONCAT('%',#{productStyleName, jdbcType=VARCHAR},'%')
+            </if>
+        <if test="productName!=null and productName!=''">
+            and product_name like CONCAT('%',#{productName, jdbcType=VARCHAR},'%')
+        </if>
+         order by product_style_name,product_name
+    </select>
+
+    <update id="update" parameterType="com.example.memo_manager.project.dto.Product" >
+        update product
+        <set>
+            <if test="productStyleName != null and productStyleName!=''" >
+                product_style_name = #{productStyleName,jdbcType=VARCHAR},
+            </if>
+            <if test="productName != null and productName!=''" >
+                product_name = #{productName,jdbcType=VARCHAR},
+            </if>
+            <if test="totleNum != null" >
+                totle_num = #{totleNum,jdbcType=INTEGER},
+            </if>
+            <if test="totalPrice != null" >
+                total_price = #{totalPrice,jdbcType=DOUBLE},
+            </if>
+            <if test="totalTime != null" >
+                total_Time = #{totalTime,jdbcType=DOUBLE},
+            </if>
+            update_date_time = current_timestamp
+        </set>
+        where product_id = #{productId,jdbcType=INTEGER}
+        and delete_flg = false
+    </update>
+
+    <update id="delete" parameterType="java.lang.Integer" >
+        update product
+        <set>
+            delete_flg = true,
+            update_date_time = current_timestamp
+        </set>
+        where product_id = #{id, jdbcType=BIGINT}
+        and delete_flg = false
+    </update>
+
+    <insert id="insert" parameterType="com.example.memo_manager.project.dto.Product" >
+        insert into product
+        (
+            product_style_name,
+            product_name,
+            totle_num,
+            total_price,
+            total_time,
+            create_date_time,
+            update_date_time
+        ) values
+        (
+            #{productStyleName,jdbcType=VARCHAR},
+            #{productName,jdbcType=VARCHAR},
+            #{totleNum,jdbcType=INTEGER},
+            #{totalPrice,jdbcType=DOUBLE},
+            #{totalTime,jdbcType=DOUBLE},
+            current_timestamp,
+            current_timestamp
+        )
+    </insert>
+
+    <select id="findProductCount" resultType="java.lang.Integer">
+        select count(*)
+        from product
+        where
+            delete_flg = false
+        <if test="productId != null" >
+            and product_id != #{productId,jdbcType=INTEGER}
+        </if>
+        <if test="productStyleName != null and productStyleName!=''" >
+          and product_style_name = #{productStyleName,jdbcType=VARCHAR}
+        </if>
+        <if test="productName != null and productName!=''" >
+          and product_name = #{productName,jdbcType=VARCHAR}
+        </if>
+    </select>
+</mapper>

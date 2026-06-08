@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.memo_manager.project.mapper.StudentMapper">
+
+    <select id="findStudentById" resultType="com.example.memo_manager.project.dto.Student" parameterType="java.lang.Integer">
+        select
+         st.user_id,
+         st.user_name,
+         dep.dep_id
+        from student st
+         left join department dep
+                   on dep.dep_id = st.dep_id
+                       and dep.delete_flg = false
+        where st.user_id = #{id, jdbcType=BIGINT}
+        and st.delete_flg = false
+    </select>
+
+    <select id="findStudentList" resultType="com.example.memo_manager.project.dto.Student">
+        select
+            user_id,
+            user_name
+        from student
+            where
+             delete_flg = false
+        order by user_id
+    </select>
+
+    <select id="findDepList" resultType="com.example.memo_manager.project.dto.Department">
+        select
+            dep_id,
+            dep_name
+        from department
+        where
+            delete_flg = false
+        order by dep_id
+    </select>
+
+    <select id="searchStudentList" resultType="com.example.memo_manager.project.dto.Student" parameterType="com.example.memo_manager.project.dto.Student">
+        select
+        st.user_id,
+        st.user_name,
+        dep.dep_name
+        from student st
+        left join department dep
+         on dep.dep_id = st.dep_id
+         and dep.delete_flg = false
+        where
+         st.delete_flg = false
+            <if test="userName!=null and userName!=''">
+                and st.user_name like CONCAT('%',#{userName, jdbcType=VARCHAR},'%')
+            </if>
+            <if test="depId != null">
+                and st.dep_id = #{depId,jdbcType=INTEGER}
+            </if>
+         order by st.user_id
+    </select>
+
+    <update id="updateStudents" parameterType="com.example.memo_manager.project.dto.Student" >
+        update student
+        <set>
+            <if test="name != null and name!=''" >
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where user_id = #{userId,jdbcType=BIGINT}
+        and delete_flg = false
+    </update>
+
+    <update id="update" parameterType="com.example.memo_manager.project.dto.Student">
+        update student
+        <set>
+            <if test="userName != null and userName!=''" >
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="depId != null" >
+                dep_id = #{depId,jdbcType=BIGINT},
+            </if>
+            update_date_time = current_timestamp
+        </set>
+        where user_id = #{userId,jdbcType=BIGINT}
+        and delete_flg = false
+    </update>
+
+    <update id="delete" parameterType="java.lang.Integer" >
+        update student
+        <set>
+            delete_flg = true,
+            update_date_time = current_timestamp
+        </set>
+        where user_id = #{id,jdbcType=BIGINT}
+        and delete_flg = false
+    </update>
+
+    <insert id="insert" parameterType="com.example.memo_manager.project.dto.Student" >
+        insert into student
+        (
+            user_name,
+            dep_id,
+            create_date_time,
+            update_date_time
+        ) values
+        (
+            #{userName},
+            #{depId},
+            current_timestamp,
+            current_timestamp
+        )
+    </insert>
+
+    <select id="findUserId" resultType="java.lang.Integer">
+        select
+            user_id
+        from
+            student
+        where
+            delete_flg = false
+          and
+            user_name = #{userName,jdbcType=VARCHAR}
+          and
+            user_id != #{userId,jdbcType=INTEGER}
+    </select>
+</mapper>

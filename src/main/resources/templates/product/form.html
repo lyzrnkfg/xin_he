@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link th:replace="layout::base_header('商品信息')"/>
+    <meta charset="utf-8"/>
+</head>
+
+<body th:replace="layout::header"></body>
+<div class="container">
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <div class="alert alert-danger mt-2" role="alert" th:if="${message}" th:text="${message}">
+    </div>
+    <div class="row">
+        <h2 th:text="${product.productId == null ? '添加商品' : '编辑商品'}"></h2>
+    </div>
+
+    <div class="rows">
+        <form th:action="@{/product/save}" th:object="${product}" method="post">
+            <input type="hidden" th:field="*{productId}"/>
+
+            <div class="form-group row">
+                <label for="productStyleName" class="col-sm-2 col-form-label">款号</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="productStyleName" th:field="*{productStyleName}" placeholder="请输入商品款号" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="productName" class="col-sm-2 col-form-label">品名</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="productName" th:field="*{productName}" placeholder="请输入商品品名" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="totleNum" class="col-sm-2 col-form-label">总件数</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="totleNum" th:field="*{totleNum}" placeholder="请输入总件数，只能是整数不包含小数" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="totalPrice" class="col-sm-2 col-form-label">总价格</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="totalPrice" th:field="*{totalPrice}" placeholder="只能输入最多2位小数的数字" required oninput="limitDecimalPlaces(this, 2)"/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="totalTime" class="col-sm-2 col-form-label">总时间</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" id="totalTime" th:field="*{totalTime}" placeholder="只能输入最多2位小数的数字" required oninput="limitDecimalPlaces(this, 2)"/>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a th:href="@{/product/search}" class="btn btn-secondary">返回</a>
+        </form>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    document.getElementById('totleNum').addEventListener('input', function() {
+        // 只保留数字字符
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    function limitDecimalPlaces(input, decimalPlaces) {
+        // 获取当前输入框的值
+        let value = input.value;
+
+        // 使用正则表达式匹配整数部分和最多有decimalPlaces位小数的数字
+        const regex = new RegExp(`^\\d*(\\.\\d{0,${decimalPlaces}})?$`);
+
+        if (!regex.test(value)) {
+            // 如果输入不符合要求，则移除非数字字符以及超出指定小数位的部分
+            value = value.replace(/[^\d.]/g, ''); // 移除非数字和小数点字符
+            const parts = value.split('.');
+            if (parts.length > 1 && parts[1].length > decimalPlaces) {
+                parts[1] = parts[1].substring(0, decimalPlaces);
+            }
+            value = parts.join('.');
+        }
+
+        // 更新输入框的值
+        input.value = value;
+    }
+
+</script>
+</html>

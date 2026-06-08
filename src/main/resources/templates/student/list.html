@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学生管理系统</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>学生列表</h2>
+        <a href="/student/add" class="btn btn-primary mb-3">添加学生</a>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>学号</th>
+                    <th>年龄</th>
+                    <th>年级</th>
+                    <th>专业</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="student : ${students}">
+                    <td th:text="${student.id}"></td>
+                    <td th:text="${student.name}"></td>
+                    <td th:text="${student.studentNumber}"></td>
+                    <td th:text="${student.age}"></td>
+                    <td th:text="${student.grade}"></td>
+                    <td th:text="${student.major}"></td>
+                    <td>
+                        <a th:href="@{/student/edit/{id}(id=${student.id})}" class="btn btn-sm btn-warning">编辑</a>
+                        <a th:href="@{/student/delete/{id}(id=${student.id})}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('确定要删除吗？')">删除</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> 
